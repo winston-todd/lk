@@ -37,7 +37,21 @@ enum {
     /* Only forward the interrupt to CPUs that has the interrupt configured as group 1 (non-secure) */
     ARM_GIC_SGI_FLAG_NS = 0x4,
 };
+
+typedef enum {
+    ARM_GIC_INT_LEVEL_TRIGGERED = 0,
+    ARM_GIC_INT_EDGE_TRIGGERED
+} arm_gic_int_trigger_t;
+
+typedef enum {
+    ARM_GIC_INT_MODEL_1_N = 0,
+    ARM_GIC_INT_MODEL_N_N
+} arm_gic_int_model_t;
+
 status_t arm_gic_sgi(u_int irq, u_int flags, u_int cpu_mask);
+status_t arm_gic_set_int_trigger(u_int irq, arm_gic_int_trigger_t type);
+status_t arm_gic_set_int_model(u_int irq, arm_gic_int_model_t model);
+status_t arm_gic_set_affinity(u_int irq, u_int cpu_mask, u_int enable_mask);
 
 #endif
 

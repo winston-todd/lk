@@ -346,6 +346,39 @@ status_t arm_gic_sgi(u_int irq, u_int flags, u_int cpu_mask)
     return NO_ERROR;
 }
 
+status_t arm_gic_set_int_trigger(u_int irq, arm_gic_int_trigger_t type)
+{
+    spin_lock_saved_state_t state;
+
+    spin_lock_save(&gicd_lock, &state, GICD_LOCK_FLAGS);
+    RMWREG32(GICBASE(gic) + GICD_ICFGR(irq / 16), (irq % 16) * 2, 1, (uint32_t) type);
+    spin_unlock_restore(&gicd_lock, state, GICD_LOCK_FLAGS);
+
+    return NO_ERROR;
+}
+
+status_t arm_gic_set_int_model(u_int irq, arm_gic_int_model_t model)
+{
+    spin_lock_saved_state_t state;
+
+    spin_lock_save(&gicd_lock, &state, GICD_LOCK_FLAGS);
+    RMWREG32(GICBASE(gic) + GICD_ICFGR(irq / 16), (irq % 16) * 2 + 1, 1, (uint32_t) model);
+    spin_unlock_restore(&gicd_lock, state, GICD_LOCK_FLAGS);
+
+    return NO_ERROR;
+}
+
+status_t arm_gic_set_affinity(u_int irq, u_int cpu_mask, u_int enable_mask)
+{
+    spin_lock_saved_state_t state;
+
+    spin_lock_save(&gicd_lock, &state, GICD_LOCK_FLAGS);
+    arm_gic_set_target_locked(irq, cpu_mask, enable_mask);
+    spin_unlock_restore(&gicd_lock, state, GICD_LOCK_FLAGS);
+
+    return NO_ERROR;
+}
+
 status_t mask_interrupt(unsigned int vector)
 {
     if (vector >= MAX_INT)
